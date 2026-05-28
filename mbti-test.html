@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI性格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            margin-top: 50px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eaff 100%);
+            color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            text-align: center;
+        }
+
+        .result-type {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            letter-spacing: 8px;
+        }
+
+        .result-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .result-description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .trait-box {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .trait-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .trait-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .intro-section {
+            text-align: center;
+        }
+
+        .intro-section p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .dimension-list {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+
+        .dimension-list li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- 介绍页面 -->
+            <div id="intro" class="intro-section">
+                <h1>🎯 MBTI性格测试</h1>
+                <p class="subtitle">了解你的性格类型，探索真实的自己</p>
+                <p>MBTI（迈尔斯-布里格斯类型指标）是一种广泛使用的性格评估工具，通过四个维度来描述你的性格偏好：</p>
+                <ul class="dimension-list">
+                    <li><strong>精力来源 (E/I):</strong> 外向型 - 从与人交往中获取能量 / 内向型 - 从独处中获取能量</li>
+                    <li><strong>认知方式 (S/N):</strong> 感觉型 - 关注具体事实 / 直觉型 - 关注抽象概念</li>
+                    <li><strong>决策方式 (T/F):</strong> 思考型 - 基于逻辑分析 / 情感型 - 基于人际关系</li>
+                    <li><strong>生活方式 (J/P):</strong> 判断型 - 喜欢计划有序 / 感知型 - 喜欢灵活随性</li>
+                </ul>
+                <p>测试包含20道题目，请根据你的真实感受选择最符合你的选项。答案没有对错之分。</p>
+                <button class="btn btn-primary" onclick="startTest()">开始测试</button>
+            </div>
+
+            <!-- 测试页面 -->
+            <div id="test" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="question-number" id="questionNumber">1</div>
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <button class="btn btn-primary" id="nextBtn" disabled onclick="nextQuestion()">下一题</button>
+            </div>
+
+            <!-- 结果页面 -->
+            <div id="result" style="display: none;">
+                <div class="result-section">
+                    <h1>🎉 测试结果</h1>
+                    <div class="result-type" id="resultType">INTJ</div>
+                    <div class="result-title" id="resultTitle">建筑师型人格</div>
+                    <div class="result-grid">
+                        <div class="trait-box"><div class="trait-label">外向(E) / 内向(I)</div><div class="trait-value" id="eiScore">I</div></div>
+                        <div class="trait-box"><div class="trait-label">感觉(S) / 直觉(N)</div><div class="trait-value" id="snScore">N</div></div>
+                        <div class="trait-box"><div class="trait-label">思考(T) / 情感(F)</div><div class="trait-value" id="tfScore">T</div></div>
+                        <div class="trait-box"><div class="trait-label">判断(J) / 感知(P)</div><div class="trait-value" id="jpScore">J</div></div>
+                    </div>
+                    <div class="result-description" id="resultDesc"></div>
+                    <button class="btn btn-secondary" onclick="restartTest()">重新测试</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "聚会结束后，我通常感觉：", options: ["精力充沛", "需要休息"], scores: { E: 1, I: 0 } },
+            { q: "做决定时，我更倾向于：", options: ["遵循逻辑分析", "考虑他人感受"], scores: { T: 1, F: 0 } },
+            { q: "我更关注：", options: ["具体的事实和细节", "可能性和未来愿景"], scores: { S: 1, N: 0 } },
+            { q: "我喜欢的生活方式是：", options: ["有计划、有条理", "灵活、随性"], scores: { J: 1, P: 0 } },
+            { q: "遇到问题时，我更可能：", options: ["独自思考解决", "与他人讨论"], scores: { I: 1, E: 0 } },
+            { q: "学习新知识时，我更喜欢：", options: ["实践和体验", "理论和概念"], scores: { S: 1, N: 0 } },
+            { q: "团队合作中，我更看重：", options: ["效率和结果", "和谐和氛围"], scores: { T: 1, F: 0 } },
+            { q: "面对不确定性，我通常：", options: ["感到不安", "感到兴奋"], scores: { J: 1, P: 0 } },
+            { q: "社交场合中，我通常：", options: ["主动与人交谈", "等待别人主动"], scores: { E: 1, I: 0 } },
+            { q: "我更相信：", options: ["我的直觉", "我的经验"], scores: { N: 1, S: 0 } },
+            { q: "批评他人时，我会：", options: ["直接坦率", "委婉温和"], scores: { T: 1, F: 0 } },
+            { q: "周末我更喜欢：", options: ["安排好计划", "随心所欲"], scores: { J: 1, P: 0 } },
+            { q: "我获取能量的方式是：", options: ["与人交往", "独自活动"], scores: { E: 1, I: 0 } },
+            { q: "描述一件事时，我更倾向于：", options: ["说清楚细节", "讲整体概念"], scores: { S: 1, N: 0 } },
+            { q: "做选择时，我更依赖：", options: ["头脑思考", "内心感受"], scores: { T: 1, F: 0 } },
+            { q: "工作环境中，我更喜欢：", options: ["结构清晰", "灵活自由"], scores: { J: 1, P: 0 } },
+            { q: "我更擅长：", options: ["表达自己的想法", "倾听他人"], scores: { E: 1, I: 0 } },
+            { q: "我对什么更感兴趣：", options: ["已知的事实", "未知的可能性"], scores: { S: 1, N: 0 } },
+            { q: "处理冲突时，我会：", options: ["寻求公平", "寻求和谐"], scores: { T: 1, F: 0 } },
+            { q: "完成任务时，我会：", options: ["按时完成", "尽量完善"], scores: { J: 1, P: 0 } }
+        ];
+
+        const mbtiTypes = {
+            INTJ: { title: "建筑师型人格", desc: "INTJ是富有想象力和战略性的思想家，具有强大的分析能力和坚定的决心。他们善于看到事物的本质，专注于实现长远目标，是天生的战略家。" },
+            INFJ: { title: "提倡者型人格", desc: "INFJ是富有洞察力和创造力的理想主义者，善于理解他人的情感和需求。他们追求深刻的意义和目标，致力于帮助他人实现潜能。" },
+            INTP: { title: "逻辑学家型人格", desc: "INTP是好奇的思考者，热爱理论和抽象概念。他们具有强烈的求知欲，善于分析问题，寻找创新的解决方案。" },
+            INFP: { title: "调停者型人格", desc: "INFP是温和的理想主义者，富有同情心和创造力。他们珍视个人价值和内在和谐，致力于实现自己的理想。" },
+            ISTJ: { title: "物流师型人格", desc: "ISTJ是可靠的组织者，注重事实和细节。他们负责任、守纪律，善于建立稳定有序的系统，是值得信赖的执行者。" },
+            ISFJ: { title: "守卫者型人格", desc: "ISFJ是温暖的守护者，善于照顾他人。他们富有同情心，注重传统和责任，致力于维护和谐的人际关系。" },
+            ISTP: { title: "鉴赏家型人格", desc: "ISTP是灵活的问题解决者，善于动手实践。他们冷静务实，善于分析事物的运作原理，是天生的工程师。" },
+            ISFP: { title: "探险家型人格", desc: "ISFP是敏感的艺术家，热爱生活和美感。他们注重当下体验，善于表达自己的创造力，是充满热情的实干家。" },
+            ENTJ: { title: "指挥官型人格", desc: "ENTJ是果断的领导者，具有强大的决策能力和战略眼光。他们善于组织和指挥，致力于实现宏伟的目标。" },
+            ENFJ: { title: "教育家型人格", desc: "ENFJ是热情的领导者，善于激励和启发他人。他们富有魅力和说服力，致力于帮助他人成长和发展。" },
+            ENTP: { title: "辩论家型人格", desc: "ENTP是机智的创新者，热爱挑战和辩论。他们善于提出新想法，充满好奇心，是天生的创业者。" },
+            ENFP: { title: "竞选者型人格", desc: "ENFP是充满活力的梦想家，善于激发他人的热情。他们富有创造力和感染力，致力于实现自己的愿景。" },
+            ESTJ: { title: "总经理型人格", desc: "ESTJ是务实的管理者，善于组织和执行。他们注重效率和秩序，是可靠的领导者和组织者。" },
+            ESFJ: { title: "执政官型人格", desc: "ESFJ是热心的社交者，善于建立和维护人际关系。他们富有同情心，注重和谐，是天生的协调者。" },
+            ESTP: { title: "企业家型人格", desc: "ESTP是大胆的行动者，善于把握机会。他们精力充沛，善于应对挑战，是天生的冒险者。" },
+            ESFP: { title: "表演者型人格", desc: "ESFP是热情的表演者，善于享受生活。他们富有魅力和幽默感，善于与人交往，是聚会的灵魂人物。" }
+        };
+
+        let currentQuestion = 0;
+        let answers = [];
+        let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+        function startTest() {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('test').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('question').textContent = q.q;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsContainer.appendChild(div);
+            });
+            
+            document.getElementById('nextBtn').disabled = true;
+            updateProgress();
+        }
+
+        function selectOption(index) {
+            document.querySelectorAll('.option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === index);
+            });
+            answers.push(index);
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            const q = questions[currentQuestion];
+            const selectedIndex = answers[currentQuestion];
+            
+            if (selectedIndex === 0) {
+                Object.keys(q.scores).forEach(key => {
+                    if (q.scores[key] === 1) scores[key]++;
+                });
+            } else {
+                Object.keys(q.scores).forEach(key => {
+                    if (q.scores[key] === 0) scores[key]++;
+                });
+            }
+
+            currentQuestion++;
+            
+            if (currentQuestion >= questions.length) {
+                showResult();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function showResult() {
+            document.getElementById('test').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            
+            const E = scores.E;
+            const I = scores.I;
+            const S = scores.S;
+            const N = scores.N;
+            const T = scores.T;
+            const F = scores.F;
+            const J = scores.J;
+            const P = scores.P;
+
+            const type = (E > I ? 'E' : 'I') + (S > N ? 'S' : 'N') + (T > F ? 'T' : 'F') + (J > P ? 'J' : 'P');
+            
+            document.getElementById('resultType').textContent = type;
+            document.getElementById('resultTitle').textContent = mbtiTypes[type].title;
+            document.getElementById('resultDesc').textContent = mbtiTypes[type].desc;
+            
+            document.getElementById('eiScore').textContent = E > I ? 'E' : 'I';
+            document.getElementById('snScore').textContent = S > N ? 'S' : 'N';
+            document.getElementById('tfScore').textContent = T > F ? 'T' : 'F';
+            document.getElementById('jpScore').textContent = J > P ? 'J' : 'P';
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            answers = [];
+            scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('intro').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
